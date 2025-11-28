@@ -1,0 +1,22 @@
+[
+  {
+    "fileName": "main-overview.mdc",
+    "description": "Complete system overview covering the poker game architecture, core components, and their interactions"
+  },
+  {
+    "fileName": "poker-algorithms.mdc",
+    "description": "Detailed documentation of core poker algorithms including hand evaluation, scoring system, and AI decision-making logic"
+  },
+  {
+    "fileName": "game-state-flow.mdc",
+    "description": "Comprehensive documentation of game state transitions, betting rounds, and data flow between core components"
+  },
+  {
+    "fileName": "data-models.mdc",
+    "description": "Definition of key data structures including cards, hands, player states, game phases, and betting structures"
+  },
+  {
+    "fileName": "ai-decision-system.mdc",
+    "description": "Detailed explanation of AI opponent decision-making system, including hand strength evaluation, pot odds calculation, and strategy implementation"
+  }
+]
