@@ -1,5 +1,9 @@
 import { Card, Hand, HandEvaluation, HandRank, Rank } from '@/types';
 
+/**
+ * Mapping of card ranks to their numeric values.
+ * Ace is high (14) by default.
+ */
 const RANK_VALUES: Record<Rank, number> = {
   '2': 2,
   '3': 3,
@@ -18,13 +22,19 @@ const RANK_VALUES: Record<Rank, number> = {
 
 /**
  * Gets the numeric value of a rank.
+ * 
+ * @param {Rank} rank - The rank to lookup (e.g., 'king', '5').
+ * @returns {number} The numeric value (2-14).
  */
 function getRankValue(rank: Rank): number {
   return RANK_VALUES[rank];
 }
 
 /**
- * Sorts cards by rank value (ascending).
+ * Sorts cards by rank value in ascending order.
+ * 
+ * @param {Card[]} cards - Array of cards to sort.
+ * @returns {Card[]} A new array of sorted cards.
  */
 function sortByRank(cards: Card[]): Card[] {
   return [...cards].sort((a, b) => getRankValue(a.rank) - getRankValue(b.rank));
@@ -32,6 +42,10 @@ function sortByRank(cards: Card[]): Card[] {
 
 /**
  * Counts occurrences of each rank in a hand.
+ * Useful for finding pairs, trips, quads, etc.
+ * 
+ * @param {Card[]} cards - The hand to analyze.
+ * @returns {Map<Rank, number>} Map of rank to count.
  */
 function getRankCounts(cards: Card[]): Map<Rank, number> {
   const counts = new Map<Rank, number>();
@@ -43,6 +57,9 @@ function getRankCounts(cards: Card[]): Map<Rank, number> {
 
 /**
  * Checks if all cards have the same suit.
+ * 
+ * @param {Card[]} cards - The hand to check.
+ * @returns {boolean} True if it is a flush.
  */
 function isFlush(cards: Card[]): boolean {
   const suit = cards[0].suit;
@@ -50,7 +67,11 @@ function isFlush(cards: Card[]): boolean {
 }
 
 /**
- * Checks if cards form a straight.
+ * Checks if cards form a straight sequence.
+ * Handles the special case of an A-2-3-4-5 ("Wheel") straight.
+ * 
+ * @param {Card[]} cards - The hand to check.
+ * @returns {boolean} True if it is a straight.
  */
 function isStraight(cards: Card[]): boolean {
   const sorted = sortByRank(cards);
@@ -72,6 +93,23 @@ function isStraight(cards: Card[]): boolean {
 
 /**
  * Evaluates a 5-card poker hand and returns its rank and value.
+ * Calculates a unique numeric value for the hand to allow easy comparison.
+ * 
+ * Score ranges:
+ * - Royal Flush: 9000
+ * - Straight Flush: 8000+
+ * - Four of a Kind: 7000+
+ * - Full House: 6000+
+ * - Flush: 5000+
+ * - Straight: 4000+
+ * - Three of a Kind: 3000+
+ * - Two Pair: 2000+
+ * - Pair: 1000+
+ * - High Card: < 1000
+ * 
+ * @param {Hand} hand - Array of 5 cards.
+ * @throws {Error} If hand does not contain exactly 5 cards.
+ * @returns {HandEvaluation} Object containing rank, value, and key cards.
  */
 export function evaluateHand(hand: Hand): HandEvaluation {
   if (hand.length !== 5) {
@@ -223,10 +261,14 @@ export function evaluateHand(hand: Hand): HandEvaluation {
 }
 
 /**
- * Compares two hands and returns:
- * -1 if hand1 < hand2
- * 0 if hand1 === hand2
- * 1 if hand1 > hand2
+ * Compares two hands to determine the winner.
+ * 
+ * @param {Hand} hand1 - First hand to compare.
+ * @param {Hand} hand2 - Second hand to compare.
+ * @returns {number} 
+ * - 1 if hand1 is better
+ * - -1 if hand2 is better
+ * - 0 if hands are equal (tie)
  */
 export function compareHands(hand1: Hand, hand2: Hand): number {
   const eval1 = evaluateHand(hand1);
@@ -236,4 +278,5 @@ export function compareHands(hand1: Hand, hand2: Hand): number {
   if (eval1.value < eval2.value) return -1;
   return 0;
 }
+
 

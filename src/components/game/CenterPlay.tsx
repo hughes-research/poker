@@ -44,7 +44,7 @@ export default function CenterPlay() {
       </div>
 
       {/* Message */}
-      {message && phase !== 'GAME_OVER' && (
+      {message && (
         <motion.div 
           className="mt-4 text-[#d4a843] text-sm text-center max-w-xs bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg border border-[#d4a843]/20"
           initial={{ opacity: 0, y: 10 }}

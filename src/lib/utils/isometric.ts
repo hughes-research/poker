@@ -17,21 +17,5 @@ export function gridToIsometric(
   return { x, y, z };
 }
 
-/**
- * Converts 3D isometric coordinates back to 2D grid coordinates.
- * @param x - X coordinate in 3D space
- * @param z - Z coordinate in 3D space
- * @param spacing - Spacing between cards (must match spacing used in gridToIsometric)
- * @returns Grid coordinates { col, row }
- */
-export function isometricToGrid(
-  x: number,
-  z: number,
-  spacing: number = 1
-): { col: number; row: number } {
-  const col = (x / spacing + z / (spacing * 0.5)) / 2;
-  const row = (z / (spacing * 0.5) - x / spacing) / 2;
-  
-  return { col: Math.round(col), row: Math.round(row) };
-}
+
 

@@ -1,38 +1,38 @@
 ---
-description: Analyzes the AI decision-making engine for poker gameplay and opponent behavior
+description: Documents the AI opponent decision-making system in poker games, including hand evaluation and strategic betting
 ---
 
 
 # ai-decision-system
 
-Importance Score: 85/100
-
-The AI opponent system implements poker-specific decision making through three core components:
+The AI decision system operates through a specialized engine in `src/lib/poker/aiOpponent.ts` with an importance score of 85/100. The system integrates three core decision-making components:
 
 ## Hand Strength Evaluation
-Located in `src/lib/poker/handEvaluator.ts`
-- Calculates relative hand strength on 0-1 scale
-- Evaluates current holding against possible opponent hands
-- Integrates kicker-based tiebreakers for accurate strength assessment
+- Analyzes current hand value using custom algorithms
+- Integrates with `handEvaluator.ts` for precise strength calculations
+- Determines relative position strength against potential opponent hands
 
-## Risk Assessment Engine
-Located in `src/lib/poker/aiOpponent.ts`
-- Processes hand strength data to determine optimal actions
-- Implements progressive difficulty scaling
-- Factors pot size and betting patterns into decisions
+## Risk Assessment
+- Calculates pot odds for informed betting decisions
+- Evaluates risk/reward ratio for each action
+- Factors in current pot size and required bet amount
 
-## Strategic Decision Making
-Located in `src/lib/poker/aiOpponent.ts`
-- Pot odds calculation for bet/call decisions
-- Basic bluffing mechanics based on hand strength
-- Risk-adjusted betting patterns
-- Progressive difficulty adaptation based on hand evaluation results
+## Strategic Decision Engine
+- Implements probabilistic bluffing system
+- Determines optimal actions (bet/check/fold)
+- Dynamically sizes bets based on:
+  - Current hand strength
+  - Pot size
+  - Previous betting patterns
+  - Risk assessment results
 
-Key Business Rules:
-1. Decision making weighted by pot odds calculation
-2. Bluffing frequency tied to hand strength assessment
-3. Progressive difficulty scaling impacts risk tolerance
-4. Strategy adjusts based on betting round (small/big bet periods)
+## Betting Logic
+- Variable bet sizing based on hand strength evaluation
+- Strategic bet amount calculation considering pot odds
+- Bluffing frequency adjusted by game context
+- Progressive betting patterns to maximize value
+
+The system relies on hand evaluation data from `handEvaluator.ts` (95/100 importance) to make informed decisions about gameplay actions and betting strategies.
 
 $END$
 

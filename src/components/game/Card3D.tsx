@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
+import Image from 'next/image';
 import * as THREE from 'three';
 import { Card } from '@/types';
 import { getCardPath } from '@/lib/utils/cardUtils';
@@ -116,15 +117,18 @@ export default function Card3D({
               transform: isBackVisible ? 'rotateY(0deg)' : 'rotateY(180deg)',
             }}
           >
-            <img
+            <Image
               src={getCardPath('back')}
               alt="Card back"
+              width={167}
+              height={243}
               style={{
                 width: '100%',
                 height: '100%',
                 objectFit: 'contain',
                 imageRendering: 'crisp-edges',
               }}
+              unoptimized
             />
           </div>
           {card && (
@@ -137,15 +141,18 @@ export default function Card3D({
                 transform: !isBackVisible ? 'rotateY(0deg)' : 'rotateY(180deg)',
               }}
             >
-              <img
+              <Image
                 src={getCardPath(card)}
                 alt={`${card.rank} of ${card.suit}`}
+                width={167}
+                height={243}
                 style={{
                   width: '100%',
                   height: '100%',
                   objectFit: 'contain',
                   imageRendering: 'crisp-edges',
                 }}
+                unoptimized
               />
             </div>
           )}

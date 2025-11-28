@@ -9,58 +9,107 @@ import {
   BettingRound,
 } from '@/types';
 
+/**
+ * Represents a single game result in the history.
+ */
 interface GameHistory {
+  /** The date the game ended */
   date: string;
+  /** Whether the player won or lost */
   result: 'win' | 'loss';
+  /** Player's final score */
   playerScore: number;
+  /** Opponent's final score */
   opponentScore: number;
 }
 
+/**
+ * Configuration settings for the game.
+ */
 interface Settings {
+  /** Toggle sound effects */
   soundEnabled: boolean;
+  /** Toggle background music */
   musicEnabled: boolean;
+  /** Speed of card animations */
   animationSpeed: 'slow' | 'normal' | 'fast';
 }
 
+/**
+ * Main Game Store interface used by Zustand.
+ * Manages the entire global state of the application.
+ */
 interface GameStore {
-  // Match state (first to 100)
+  // --- Match State (first to 100) ---
+  /** Current match score for the player */
   matchPlayerScore: number;
+  /** Current match score for the opponent */
   matchOpponentScore: number;
+  /** Winner of the entire match, if any */
   matchWinner: 'player' | 'opponent' | null;
+  /** Score needed to win the match */
   targetScore: number;
   
-  // Game state
+  // --- Game Round State ---
+  /** Whether to show the intro screen */
   showIntro: boolean;
+  /** Current phase of the game round */
   phase: GamePhase;
+  /** The current deck of cards */
   deck: Card[];
+  /** The player object */
   player: Player | null;
+  /** The opponent object */
   opponent: Player | null;
+  /** Current pot size */
   pot: number;
+  /** Current betting round details */
   bettingRound: BettingRound | null;
+  /** Fixed betting limits */
   fixedLimit: { smallBet: number; bigBet: number };
+  /** Winner of the current hand */
   winner: 'player' | 'opponent' | 'tie' | null;
+  /** Indices of cards selected by the player (for drawing/discarding) */
   selectedCards: number[];
+  /** Game status message displayed to the user */
   message: string;
   
-  // Settings & History
+  // --- Settings & History ---
+  /** User settings */
   settings: Settings;
+  /** History of past matches */
   gameHistory: GameHistory[];
   
-  // Actions
+  // --- Actions ---
+  /** Displays the intro screen */
   showIntroScreen: () => void;
+  /** Starts a completely new match, resetting scores */
   startNewMatch: () => void;
+  /** Starts a new hand within the current match */
   startHand: () => void;
+  /** Handles player betting a specific amount */
   playerBet: (amount: number) => void;
+  /** Handles player checking */
   playerCheck: () => void;
+  /** Handles player calling the current bet */
   playerCall: () => void;
+  /** Handles player raising the bet */
   playerRaise: (amount: number) => void;
+  /** Handles player folding */
   playerFold: () => void;
+  /** Toggles selection of a card (by index) for the draw phase */
   toggleCardSelection: (cardIndex: number) => void;
+  /** Executes the draw phase for the player, replacing selected cards */
   playerDraw: () => void;
+  /** Triggers the AI opponent to make a move */
   opponentAction: () => void;
+  /** Executes the draw phase for the opponent */
   opponentDraw: () => void;
+  /** Progresses game to the next hand after a round is over */
   continueToNextHand: () => void;
+  /** Updates game settings */
   updateSettings: (settings: Settings) => void;
+  /** Resets the match state entirely */
   resetMatch: () => void;
 }
 
@@ -69,6 +118,10 @@ const SMALL_BET = 2;
 const BIG_BET = 4;
 const TARGET_SCORE = 100;
 
+/**
+ * Zustand store implementation for Game State.
+ * Uses persistence middleware to save state to local storage.
+ */
 export const useGameStore = create<GameStore>()(
   persist(
     (set, get) => ({
@@ -113,6 +166,10 @@ export const useGameStore = create<GameStore>()(
         get().startHand();
       },
 
+      /**
+       * Initializes a new hand.
+       * Shuffles deck, deals cards, posts antes, and sets initial state.
+       */
       startHand: () => {
         const { matchPlayerScore, matchOpponentScore } = get();
         
@@ -177,10 +234,18 @@ export const useGameStore = create<GameStore>()(
       },
 
       playerBet: (amount: number) => {
-        const { player, opponent, pot, bettingRound } = get();
+        const { player, opponent, pot, bettingRound, fixedLimit } = get();
         if (!player || !opponent || !bettingRound) return;
 
-        const newPlayerChips = player.chips - amount;
+        // Input validation
+        if (!Number.isFinite(amount) || amount <= 0) return;
+        if (amount > player.chips) return;
+        
+        const isSecondRound = bettingRound.round === 2;
+        const maxBet = isSecondRound ? fixedLimit.bigBet : fixedLimit.smallBet;
+        if (amount > maxBet) return;
+
+        const newPlayerChips = Math.max(0, player.chips - amount);
         const newPot = pot + amount;
 
         set({
@@ -198,6 +263,7 @@ export const useGameStore = create<GameStore>()(
         if (!player || !opponent || !bettingRound) return;
 
         if (bettingRound.lastAction === 'CHECK') {
+          // If opponent checked to us, round is over
           set({
             phase: 'DRAWING',
             player: { ...player, isActive: true },
@@ -206,6 +272,7 @@ export const useGameStore = create<GameStore>()(
             message: 'Select cards to discard, then click Draw',
           });
         } else {
+          // We check first
           set({
             player: { ...player, isActive: false },
             opponent: { ...opponent, isActive: true },
@@ -220,7 +287,10 @@ export const useGameStore = create<GameStore>()(
         if (!player || !opponent || !bettingRound) return;
 
         const amountToCall = bettingRound.currentBet - player.currentBet;
-        const newPlayerChips = player.chips - amountToCall;
+        if (amountToCall <= 0) return; // Nothing to call
+        if (amountToCall > player.chips) return; // Insufficient chips
+
+        const newPlayerChips = Math.max(0, player.chips - amountToCall);
         const newPot = pot + amountToCall;
 
         set({
@@ -234,12 +304,21 @@ export const useGameStore = create<GameStore>()(
       },
 
       playerRaise: (amount: number) => {
-        const { player, opponent, pot, bettingRound } = get();
+        const { player, opponent, pot, bettingRound, fixedLimit } = get();
         if (!player || !opponent || !bettingRound) return;
 
+        // Input validation
+        if (!Number.isFinite(amount) || amount <= 0) return;
+        
+        const isSecondRound = bettingRound.round === 2;
+        const maxBet = isSecondRound ? fixedLimit.bigBet : fixedLimit.smallBet;
         const totalBet = bettingRound.currentBet + amount;
+        if (totalBet > maxBet) return;
+
         const amountToAdd = totalBet - player.currentBet;
-        const newPlayerChips = player.chips - amountToAdd;
+        if (amountToAdd > player.chips) return; // Insufficient chips
+
+        const newPlayerChips = Math.max(0, player.chips - amountToAdd);
         const newPot = pot + amountToAdd;
 
         set({
@@ -273,8 +352,9 @@ export const useGameStore = create<GameStore>()(
       },
 
       toggleCardSelection: (cardIndex: number) => {
-        const { selectedCards, phase } = get();
+        const { selectedCards, phase, player } = get();
         if (phase !== 'DRAWING') return;
+        if (!Number.isInteger(cardIndex) || cardIndex < 0 || cardIndex >= (player?.hand.length ?? 0)) return;
 
         if (selectedCards.includes(cardIndex)) {
           set({ selectedCards: selectedCards.filter(i => i !== cardIndex) });
@@ -289,8 +369,11 @@ export const useGameStore = create<GameStore>()(
 
         const newHand = [...player.hand];
         const newDeck = [...deck];
+        const validIndices = selectedCards.filter(
+          index => Number.isInteger(index) && index >= 0 && index < player.hand.length
+        );
 
-        selectedCards.forEach(index => {
+        validIndices.forEach(index => {
           if (newDeck.length > 0) {
             newHand[index] = newDeck.shift()!;
           }
@@ -300,7 +383,7 @@ export const useGameStore = create<GameStore>()(
           player: { ...player, hand: newHand },
           deck: newDeck,
           selectedCards: [],
-          message: `Drew ${selectedCards.length} card${selectedCards.length !== 1 ? 's' : ''}. Waiting for opponent...`,
+          message: `Drew ${validIndices.length} card${validIndices.length !== 1 ? 's' : ''}. Waiting for opponent...`,
         });
 
         setTimeout(() => get().opponentDraw(), 1000);
@@ -310,6 +393,8 @@ export const useGameStore = create<GameStore>()(
         const { opponent, deck, player, pot, fixedLimit } = get();
         if (!opponent || !player) return;
 
+        // Simple AI Drawing logic:
+        // Keep pairs/trips/etc. Discard loose cards.
         const evaluation = evaluateHand(opponent.hand);
         const newHand = [...opponent.hand];
         const newDeck = [...deck];
@@ -365,6 +450,7 @@ export const useGameStore = create<GameStore>()(
 
         let action: 'CHECK' | 'BET' | 'CALL' | 'FOLD' = 'CHECK';
 
+        // Basic AI decision tree
         if (currentBet === 0) {
           if (handStrength > 0.5 || Math.random() < 0.3) {
             action = 'BET';
@@ -450,9 +536,11 @@ export const useGameStore = create<GameStore>()(
             break;
 
           case 'BET':
-            const betAmount = Math.min(maxBet, opponent.chips);
+            const betAmount = Math.min(maxBet, Math.max(0, opponent.chips));
+            if (betAmount <= 0) break;
+            const newOpponentChipsAfterBet = Math.max(0, opponent.chips - betAmount);
             set({
-              opponent: { ...opponent, chips: opponent.chips - betAmount, currentBet: betAmount, isActive: false },
+              opponent: { ...opponent, chips: newOpponentChipsAfterBet, currentBet: betAmount, isActive: false },
               player: { ...player, isActive: true },
               pot: pot + betAmount,
               bettingRound: { ...bettingRound, currentBet: betAmount, pot: pot + betAmount, activePlayer: 'player', lastAction: 'BET' },
@@ -460,8 +548,9 @@ export const useGameStore = create<GameStore>()(
             break;
 
           case 'CALL':
-            const callAmount = amountToCall;
-            const newOpponentChips = opponent.chips - callAmount;
+            const callAmount = Math.min(amountToCall, opponent.chips);
+            if (callAmount < 0) break;
+            const newOpponentChips = Math.max(0, opponent.chips - callAmount);
             const newPot = pot + callAmount;
             
             if (isSecondRound) {

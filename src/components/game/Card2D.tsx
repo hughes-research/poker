@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Card } from '@/types';
 import { getCardPath } from '@/lib/utils/cardUtils';
 
@@ -63,14 +64,18 @@ export default function Card2D({
           transform: 'rotateY(0deg)',
         }}
       >
-        <img
+        <Image
           src={cardPath}
           alt={card ? `${card.rank} of ${card.suit}` : 'Card back'}
+          width={80}
+          height={116}
           className="w-full h-full object-contain bg-white rounded-lg"
           draggable={false}
+          unoptimized
         />
       </div>
     </motion.div>
   );
 }
+
 

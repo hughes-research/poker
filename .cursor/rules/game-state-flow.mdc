@@ -1,42 +1,55 @@
 ---
-description: Specification for game state transitions, betting rounds, and phase management in a poker game
+description: Specifies the game state transitions, betting rounds, and data flow in poker gameplay
 ---
 
 
 # game-state-flow
 
-## State Transitions (Score: 85)
-Primary game phases managed through src/lib/poker/gameLogic.ts:
-1. DEALING - Initial card distribution
-2. BETTING - Fixed-limit betting rounds
-3. DRAWING - Card replacement phase
-4. SHOWDOWN - Hand comparison and pot distribution
+## State Progression
+Core game flow managed through `src/lib/poker/gameLogic.ts`:
+1. Initial Deal
+2. First Betting Round
+3. Draw/Card Replacement
+4. Second Betting Round
+5. Showdown
+6. Winner Determination
 
-## Betting Round Flow (Score: 90)
-- Fixed-limit structure with small/big bet rounds
-- Player action validation during betting phases
-- Pot management and chip distribution tracking
-- Turn-based action enforcement
+## Betting Round Management
+Betting phases follow fixed-limit rules:
+- Turn-based player actions
+- Pot management and chip tracking
+- Action progression through player decisions
+- Round completion conditions
 
-## Match Progression (Score: 80)
-src/store/gameStore.ts implements:
-- Progressive scoring system toward 100 points
-- Betting round coordination
-- Draw phase card selection management
-- Match history and statistics tracking
+## Match Structure
+Implemented in `src/store/gameStore.ts`:
+- Match scoring system targeting 100 points
+- Round-based progression tracking
+- Game history recording
+- Win/loss state management
 
-## Data Flow Integration (Score: 85)
-Key state management paths:
-1. Game Engine → State Store: Game phase updates
-2. State Store → Betting System: Player action validation
-3. State Store → Drawing Phase: Card selection tracking
-4. Game Engine → Scoring System: Match progression updates
+## Round Transitions
+1. Pre-round setup
+2. Active gameplay phase
+3. Post-round resolution
+4. Score updates
+5. Match continuation/completion check
 
-## State Dependencies (Score: 75)
-- Betting rounds require valid game phase
-- Drawing phase activates after initial betting
-- Showdown triggers after draw phase betting
-- Match scoring updates after showdown resolution
+## State Dependencies
+Game progression relies on:
+- Valid player actions
+- Completed betting rounds
+- Hand evaluation results
+- Score thresholds
+- Round completion conditions
+
+## Data Flow
+Key state updates flow through:
+1. Betting round manager
+2. Pot calculator
+3. Hand evaluator
+4. Score tracker
+5. Match progression controller
 
 $END$
 

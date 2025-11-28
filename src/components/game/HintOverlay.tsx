@@ -3,9 +3,29 @@
 import { motion } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { evaluateHand } from '@/lib/poker/handEvaluator';
+import { HandRank } from '@/types';
 
 interface HintOverlayProps {
   onClose: () => void;
+}
+
+/**
+ * Converts a hand rank to a human-readable name.
+ */
+function getHandRankName(rank: HandRank): string {
+  const rankNames: Record<HandRank, string> = {
+    'HIGH_CARD': 'High Card',
+    'PAIR': 'Pair',
+    'TWO_PAIR': 'Two Pair',
+    'THREE_OF_A_KIND': 'Three of a Kind',
+    'STRAIGHT': 'Straight',
+    'FLUSH': 'Flush',
+    'FULL_HOUSE': 'Full House',
+    'FOUR_OF_A_KIND': 'Four of a Kind',
+    'STRAIGHT_FLUSH': 'Straight Flush',
+    'ROYAL_FLUSH': 'Royal Flush',
+  };
+  return rankNames[rank];
 }
 
 export default function HintOverlay({ onClose }: HintOverlayProps) {
@@ -21,14 +41,15 @@ export default function HintOverlay({ onClose }: HintOverlayProps) {
     }
 
     const handStrength = handResult.value;
+    const handName = getHandRankName(handResult.rank);
 
     if (phase === 'DRAWING') {
       // Drawing phase hints
-      if (handStrength >= 6) {
-        return { action: 'Stand Pat', reason: `You have a ${handResult.name}! Keep all your cards.` };
-      } else if (handStrength >= 4) {
-        return { action: 'Keep your hand', reason: `Your ${handResult.name} is decent. Consider keeping it.` };
-      } else if (handStrength >= 2) {
+      if (handStrength >= 6000) {
+        return { action: 'Stand Pat', reason: `You have a ${handName}! Keep all your cards.` };
+      } else if (handStrength >= 4000) {
+        return { action: 'Keep your hand', reason: `Your ${handName} is decent. Consider keeping it.` };
+      } else if (handStrength >= 2000) {
         // Has a pair
         const hint = selectedCards.length === 0 
           ? 'Discard your non-pair cards (tap 3 cards)' 
@@ -44,21 +65,21 @@ export default function HintOverlay({ onClose }: HintOverlayProps) {
       // Betting phase hints
       const currentBet = bettingRound?.currentBet || 0;
       
-      if (handStrength >= 7) {
-        return { action: 'Raise!', reason: `Your ${handResult.name} is very strong. Bet aggressively!` };
-      } else if (handStrength >= 5) {
-        return { action: 'Bet/Call', reason: `Your ${handResult.name} is good. Stay in the hand.` };
-      } else if (handStrength >= 3) {
+      if (handStrength >= 7000) {
+        return { action: 'Raise!', reason: `Your ${handName} is very strong. Bet aggressively!` };
+      } else if (handStrength >= 5000) {
+        return { action: 'Bet/Call', reason: `Your ${handName} is good. Stay in the hand.` };
+      } else if (handStrength >= 3000) {
         if (currentBet === 0) {
-          return { action: 'Check', reason: `Your ${handResult.name} is moderate. Check to see more for free.` };
+          return { action: 'Check', reason: `Your ${handName} is moderate. Check to see more for free.` };
         } else {
-          return { action: 'Call (risky)', reason: `Your ${handResult.name} might not be strong enough. Consider folding if the bet is high.` };
+          return { action: 'Call (risky)', reason: `Your ${handName} might not be strong enough. Consider folding if the bet is high.` };
         }
       } else {
         if (currentBet === 0) {
-          return { action: 'Check/Bluff', reason: `Your ${handResult.name} is weak. Check, or try a small bluff.` };
+          return { action: 'Check/Bluff', reason: `Your ${handName} is weak. Check, or try a small bluff.` };
         } else {
-          return { action: 'Fold', reason: `Your ${handResult.name} is weak. Folding might be the smart play.` };
+          return { action: 'Fold', reason: `Your ${handName} is weak. Folding might be the smart play.` };
         }
       }
     }
@@ -95,7 +116,7 @@ export default function HintOverlay({ onClose }: HintOverlayProps) {
           {handResult && (
             <div className="text-center mb-4 bg-black/30 rounded-lg p-3 border border-[#d4a843]/20">
               <div className="text-[#d4a843]/60 text-xs uppercase tracking-wider">Your Hand</div>
-              <div className="text-[#d4a843] text-xl font-bold">{handResult.name}</div>
+              <div className="text-[#d4a843] text-xl font-bold">{getHandRankName(handResult.rank)}</div>
             </div>
           )}
 
@@ -117,4 +138,5 @@ export default function HintOverlay({ onClose }: HintOverlayProps) {
     </motion.div>
   );
 }
+
 

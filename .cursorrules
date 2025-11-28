@@ -10,42 +10,39 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The poker game system implements a complete 5-card draw poker environment with an AI opponent, structured around four primary business components:
+## Core Game Components
 
-## Game Engine (Importance: 85/100)
-Located at `src/lib/poker/gameLogic.ts`, manages the core poker game flow:
-- Game phase control: DEALING, BETTING, DRAWING, SHOWDOWN
-- Fixed-limit betting structure implementation
-- Pot management and chip distribution
-- Player turn validation and action processing
+The poker game system consists of four primary business logic components that handle game rules, hand evaluation, AI decisions, and state management.
 
-## Hand Evaluation (Importance: 90/100)
-Located at `src/lib/poker/handEvaluator.ts`:
-- Complete poker hand ranking system
-- Specialized handling of wheel straights (A-2-3-4-5)
-- Hand strength scoring on 0-1 scale
-- Tiebreaker resolution with kicker cards
+## Hand Evaluation System (95/100)
+Located in `src/lib/poker/handEvaluator.ts`, this component:
+- Determines poker hand strengths and rankings
+- Identifies card combinations (pairs, straights, flushes)
+- Implements hand comparison logic
+- Calculates tie-breaking values
 
-## AI Decision Making (Importance: 85/100)
-Located at `src/lib/poker/aiOpponent.ts`:
-- Risk assessment based on hand evaluation
-- Pot odds calculations
-- Bluffing mechanism implementation
-- Difficulty scaling system
+## Game Rules Engine (90/100)
+Implemented in `src/lib/poker/gameLogic.ts`, managing:
+- Betting round progression
+- Turn-based gameplay flow
+- Pot and chip distribution
+- Game progression (deal → bet → draw → bet → showdown)
 
-## Game State Control (Importance: 80/100)
-Located at `src/store/gameStore.ts`:
-- Match progression to 100 points
-- Betting round coordination
-- Draw phase management
-- Statistics and history tracking
+## AI Decision Engine (85/100)
+The `src/lib/poker/aiOpponent.ts` system provides:
+- Hand strength evaluation
+- Risk assessment using pot odds
+- Strategic betting decisions
+- Probabilistic bluffing mechanics
+- Dynamic bet sizing
 
-The system enforces specific business rules:
-- Fixed betting limits with small/big bet structure
-- Single draw phase in 5-card draw format
-- Progressive scoring to 100 points
-- Standard poker hand rankings
-- AI decisions based on hand strength and pot odds
+## State Management (80/100)
+`src/store/gameStore.ts` handles:
+- Match scoring (first to 100 points)
+- Round progression tracking
+- Fixed-limit betting implementation
+- Game history recording
+- Player interaction rules
 
 $END$
 

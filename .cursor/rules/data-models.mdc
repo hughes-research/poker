@@ -1,45 +1,45 @@
 ---
-description: Specification for poker game data structures including cards, hands, game states and betting models
+description: Specification for poker game data structures and state management models
 ---
 
 
 # data-models
 
-Primary Data Structures:
-Importance Score: 90/100
+## Core Data Structures
 
-## Game State Models
-Path: src/store/gameStore.ts
-- Match progression tracking (first to 100 points)
-- Game phase enumeration: DEALING, BETTING, DRAWING, SHOWDOWN 
-- Player state management including chip counts and current actions
-- Historical game data and statistics
+### Game State Models
+- Centralized in `src/store/gameStore.ts`
+- Match scoring system tracking progress to 100 points
+- Round-based gameplay progression states
+- Fixed-limit betting rule structures
+- Game history with win/loss record tracking
 
-## Hand Models
-Path: src/lib/poker/handEvaluator.ts
-- 5-card poker hand representation
-- Relative hand strength scoring (0-1 scale)
-- Kicker-based tiebreaker information
-- Special hand type handling (wheel straights)
+### Hand Evaluation Models
+- Located in `src/lib/poker/handEvaluator.ts`
+- Card combination detection structures
+- Hand strength calculation models
+- Specialized ranking value system for tie-breaking
+- Comparative hand scoring system
 
-## Betting Structures
-Path: src/lib/poker/gameLogic.ts
-- Fixed-limit betting model with small/big bet rounds
-- Pot management and chip allocation
-- Betting action validation rules
-- Player turn sequencing
+### Gameplay Flow Models
+- Defined in `src/lib/poker/gameLogic.ts`
+- Betting round state management
+- Turn-based progression structure
+- Pot and chip distribution models
+- Hand progression states:
+  - Deal
+  - Initial betting
+  - Draw
+  - Final betting
+  - Showdown
 
-## Player State Models
-- Current hand composition
-- Available chip count
-- Action history within betting rounds
-- Cumulative match score tracking
-
-## Game Phase Models
-- Phase transition rules and valid actions
-- Phase-specific state requirements
-- Betting round progression
-- Draw phase card selection tracking
+### AI Decision Models
+- Implemented in `src/lib/poker/aiOpponent.ts`
+- Hand strength evaluation structures
+- Risk assessment models based on pot odds
+- Strategic decision trees for betting/folding
+- Bluffing probability models
+- Dynamic bet sizing calculations
 
 $END$
 
